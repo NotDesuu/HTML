@@ -1,0 +1,29 @@
+<html>
+    <body>
+        <input type="text" id="angka1" class="angka"/><br />
+        <input type="text" id="angka2" class="angka"/><br />
+        <button type="button" onclick="hitung2()">Hitung</button>
+        <p id="hasil"></p>
+    </body>
+<script>
+function hitung1() {
+
+const angka1 = parseInt(document.getElementById('angka1').value);
+const angka2 = parseInt(document.getElementById('angka2').value);
+    
+const hasil = angka1 + angka2;
+
+document.getElementById('hasil').innerHTML = hasil;
+}
+
+function hitung2(){
+
+const hasil = [...document.getElementsByClassName('angka')]
+.map(e => parseInt(e.value))
+.filter(e => !isNaN(e))
+.reduce((p,c) => p+c)
+document.getElementById('hasil').innerHTML = hasil;
+}
+
+</script>
+</html>
