@@ -1,0 +1,64 @@
+<html>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <div>
+        <canvas id="Chart1" style="max-height:200px"></canvas>
+    </div>
+    <input type="file" id="csvFile" accept=".csv"/><br/>
+    <button onclick="createChart()">Tampilkan Grafik</button>
+    <script>
+
+    // ni auk apaan
+    const addToKey = (acc, key, value) => 
+      Object.assign({}, acc, { [key]: acc[key] + value });
+    
+    // ni buat baca teks csv, di file prak_06 ada
+    function bacaTeks(teks){
+        const lines = teks.trim().split(/\r?\n/).filter(Boolean);
+        const headers = lines[0].split(",").map(h => h.trim());
+        const rows = lines.slice(1).map(line => line.split(",").map(cell => cell.trim()));
+        return { headers, rows };
+    };
+
+    // ni buat baca file csv, di file prak_06 ada
+    async function bacaFile(){
+        const file = document.getElementById("csvFile").files[0];
+        if (!file) {
+        throw new Error("Please choose the CSV file first.");
+        }
+        return await file.text();
+    };
+
+    async function createChart(){
+        try {
+            const teks = await bacaFile();
+            const pemakaians = bacaTeks(teks);
+        
+        // ni ubah x[10 ke brp terserah] biar bisa jalan
+        const hasil = pemakaians.rows.reduce((acc, x) =>
+            addToKey(acc,
+            Number(x[10]) <= 50 ? "Low" :
+            Number(x[10]) <= 100 ? "Medium" :
+            Number(x[10]) <= 150 ? "High" : "Very High",1),
+        { Low: 0, Medium: 0, High: 0, "Very High": 0 })
+        console.log(hasil);
+
+        // ni chart bar
+        const ctx = document.getElementById('Chart1');
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            datasets: [{
+              label: '# of App Open Pewr Day',
+              data: hasil,
+              borderWidth: 1
+            }],
+          }
+        });
+      } catch (error) {
+        console.error(error.message);
+      }
+    };
+    </script>
+</body>
+</html>
