@@ -1,0 +1,88 @@
+<html>
+<body>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <input type="file" id="csvFile" accept=".csv" /><br/>
+
+    <div>
+        <canvas id="chart1" style="max-height:300px"></canvas>
+    </div>
+    
+    <button onclick="createCharta()">Simple</button>
+    <button onclick="createChartb()">All</button>
+
+<script>
+
+// INTI
+const addToKey = (acc, key, value) => 
+  Object.assign({}, acc, { [key]: (acc[key] || 0) + value });
+
+function bacaTeks(teks){
+    const lines = teks.trim().split(/\r?\n/).filter(Boolean);
+    return lines.slice(1).map(line => line.split(",").map(cell => cell.trim()));
+};
+
+async function bacaFile(){
+    const file = document.getElementById("csvFile").files[0];
+    if (!file) { alert("Pilih file CSV dulu!"); throw new Error("File tidak ditemukan."); }
+    return await file.text();
+};
+
+function bersihkanChart(id) {
+    const existing = Chart.getChart(id);
+    if (existing) existing.destroy();
+}
+
+// Chart Simple
+async function createCharta(){
+    const teks = await bacaFile();
+    const rows = bacaTeks(teks);
+    
+    // Ganti (x[10]) kalau mau ganti rows nya
+    const hasila = rows.reduce((acc, x) => 
+        addToKey(acc, 
+            Number(x[10]) <= 50 ? "Low" : 
+            Number(x[10]) <= 100 ? "Medium" : 
+            Number(x[10]) <= 150 ? "High" : "Very High", 1),
+        { Low: 0, Medium: 0, High: 0, "Very High": 0 }
+    );
+    
+    bersihkanChart('chart1');
+    const ctx = document.getElementById('chart1').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(hasila),
+            datasets: [{
+                label: 'Kategori Data',
+                data: Object.values(hasila),
+                backgroundColor: '#4e73df'
+            }]
+        }
+    });
+}
+
+// Chart All
+async function createChartb(){
+    const teks = await bacaFile();
+    const rows = bacaTeks(teks);
+    const hasilb = rows.map(x => Number(x[10]));
+    
+    bersihkanChart('chart1');
+    const ctx = document.getElementById('chart1').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(hasilb),
+            datasets: [{
+                label: 'Seluruh Data',
+                data: Object.values(hasilb),
+                backgroundColor: '#4e73df'
+            }]
+        }
+    });
+}
+
+</script>
+</body>
+</html>
